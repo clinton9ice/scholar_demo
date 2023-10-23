@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.default-shadow {
+	box-shadow: 2px 4px 20px 0px rgba(0, 0, 0, 0.05);
+}
+.light-shadow {
+	box-shadow: 0 6px 25px rgba(0, 0, 0, 0.03);
+}
+
+body {
+	@apply bg-gray-50 text-gray-950;
+}
+
+:where(.css-dev-only-do-not-override-xu9wm8).ant-dropdown .ant-dropdown-menu,
+:where(.css-dev-only-do-not-override-xu9wm8).ant-dropdown-menu-submenu
+	.ant-dropdown-menu {
+	box-shadow: 2px 4px 20px 0px rgba(0, 0, 0, 0.07) !important;
+}
+.title-danger .ant-modal-title {
+	@apply !text-red-700;
+}
+.ant-row {
+	@apply !block;
+}
+
+.ant-form-item .ant-form-item-label > label {
+	@apply !block !text-left;
+}
+.ant-select-selector,
+.custom-input {
+	box-shadow: none !important;
+	height: 40px !important;
+	border-radius: 6px !important;
+	border: 1px solid #eaecf0 !important;
+	outline: none !important;
+	@apply focus:!border-green-2;
+}
+
+.ant-form-item .ant-form-item-explain-error {
+	@apply text-[10px] mt-2 text-red-500;
+}
+.ant-form-item .ant-form-item-label > label {
+	@apply !text-gray-500;
+}
+.custom-transition {
+	transition: all 500ms cubic-bezier(0.47, 0.34, 0.08, 1.07);
+}

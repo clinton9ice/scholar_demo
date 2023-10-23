@@ -1,0 +1,7 @@
+# Ignore artifacts:
+node_modules/
+.nuxt/
+.vscode/
+static/
+dist/
+public/external-scripts

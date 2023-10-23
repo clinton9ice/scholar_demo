@@ -1,0 +1,21 @@
+{
+	"arrowParens": "avoid",
+	"endOfLine": "lf",
+	"bracketSpacing": true,
+	"htmlWhitespaceSensitivity": "strict",
+	"insertPragma": false,
+	"jsxSingleQuote": true,
+	"printWidth": 80,
+	"singleQuote": true,
+	"tabWidth": 4,
+	"trailingComma": "none",
+	"useTabs": true,
+	"vueIndentScriptAndStyle": true,
+	"singleAttributePerLine": false,
+	"bracketSameLine": false,
+	"jsxBracketSameLine": false,
+	"proseWrap": "preserve",
+	"quoteProps": "as-needed",
+	"requirePragma": false,
+	"semi": false
+}
