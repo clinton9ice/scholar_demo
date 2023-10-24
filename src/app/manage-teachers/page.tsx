@@ -365,7 +365,7 @@ export default function ManageTeachers() {
 									</div>
 								</div>
 
-								<div className='overflow-x-auto px-5 max-w-xs  sm:max-w-full'>
+								<div className='overflow-x-auto px-5 max-w-sm  sm:max-w-full'>
 									<Table
 										columns={tableColumns}
 										rowKey={record => record.title}

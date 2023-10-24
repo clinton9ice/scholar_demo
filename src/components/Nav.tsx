@@ -55,7 +55,7 @@ export const SideNav = (props?:{ className?: string }) =>{
  
     return (
         <React.Fragment>
-            <div className={`fixed top-0 h-full transition from-transparent to-gray-700 z-10 w-full md:hidden bg-gradient-to-br ${!isSideNavOpen? 'opacity-80': 'opacity-0 -z-20'}`} onClick={closeSideNav} />
+            <div className={`fixed top-0 h-full transition from-transparent to-gray-700 z-10 w-full md:hidden bg-gradient-to-br ${!isSideNavOpen? 'block': 'hidden'}`} onClick={closeSideNav} />
         <aside className={classes}>
             <div className="px-5">
 

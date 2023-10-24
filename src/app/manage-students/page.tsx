@@ -353,7 +353,7 @@ export default function ManageStudents() {
 									</div>
 								</div>
 
-								<div className='overflow-auto px-5 max-w-xs  sm:max-w-full'>
+								<div className='overflow-auto px-5 max-w-sm  sm:max-w-full'>
 									<Table
 										columns={tableColumns}
 										rowKey={record => record.title}
