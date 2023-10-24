@@ -42,7 +42,7 @@ export function CompletedCourses() {
       }
 
     return (
-        <div className='w-full flex-none md:flex-1'>
+        <div className='w-full flex-none lg:flex-1'>
         <h3 className="font-semibold text-base mb-5">
         Completed Courses
         </h3>
@@ -53,7 +53,7 @@ export function CompletedCourses() {
                         <div className="pl-3 pr-10 w-full gap-5  justify-between flex items-center my-auto">
                             <div className='flex flex-wrap md:flex-nowrap items-center gap-5'>
 
-                                <div className="md:h-[94px] md:w-[94px] w-[50px] h-[50px] rounded-md bg-gray-100">
+                                <div className="md:h-[94px] flex-none md:w-[94px] w-[50px] h-[50px] rounded-md bg-gray-100">
                                     
                                 </div>
 

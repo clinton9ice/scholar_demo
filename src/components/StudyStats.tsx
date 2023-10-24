@@ -4,6 +4,7 @@ import {CaretDown} from '@/components/icons'
 import { Card } from '@/components';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
+import { LineChart } from '@mui/x-charts/LineChart';
 
 export const StudyStats = () => {
     const [filter, setFilter] = useState('weekly')
@@ -26,7 +27,7 @@ export const StudyStats = () => {
       const updateFilter: MenuProps['onClick'] = ({ key }) => setFilter(key)
       
     return (
-        <div className='md:flex-1 w-full'>
+        <div className='lg:flex-1 w-full'>
             <h3 className="font-semibold text-base mb-5">
                 Study Statistics
                 </h3>
@@ -46,7 +47,16 @@ export const StudyStats = () => {
                         </Dropdown>
                     </div>
                     <div className=" w-full px-8 md:gap-x-20 gap-8 flex-wrap flex items-center my-auto">
-
+                    <LineChart
+                          xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
+                          series={[
+                            {
+                              data: [2, 5.5, 2, 8.5, 1.5, 5],
+                            },
+                          ]}
+                          height={300}
+                          className='max-w-[500px] w-full'
+                      />
                     </div>
                     </Card>
         </div>

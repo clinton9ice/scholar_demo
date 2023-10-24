@@ -37,29 +37,7 @@ interface TableParams {
     filters?: Record<string, FilterValue>;
 }
   
-const columns: ColumnsType<DataType> = [
-    {
-      title: 'Teacher name',
-      dataIndex: 'name',
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: '20%',
-    },
-    {
-      title: 'Title',
-      dataIndex: 'gender',
-      filters: [
-        { text: 'Male', value: 'male' },
-        { text: 'Female', value: 'female' },
-      ],
-      width: '20%',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-    }
-];
-  
+
 const requiredDate = dayjs().subtract(22, 'year')
 const disabledAgeHigher21 = (current: Dayjs) => {
     const date = dayjs()
@@ -73,11 +51,7 @@ const disabledAgeHigher21 = (current: Dayjs) => {
 export default function ManageTeachers() {
     const [isFormModalOpen, openFormModal] = useState(false)
     const [isSubmitting, startSubmitting] = useState(false)
-    const teachers = useRef<TableColumn>([
-        {
-            dataIndex: ''
-        }
-    ])
+    const teachers = useRef<TableColumn>([])
     const [form] = Form.useForm();
     const titleList = [
         {
@@ -106,8 +80,40 @@ export default function ManageTeachers() {
         'No of Male Teachers': 0,
         'No of Female Teachers': 0
     })
+    const tableColumns: ColumnsType<FieldType> = [
+        {
+          title: 'Teacher name',
+          dataIndex: 'name',
+          sorter: true,
+          render: (name) => `${name.first} ${name.last}`,
+          width: '20%',
+        },
+        {
+          title: 'Title',
+          dataIndex: 'title',
+          filters: titleList.map(i => ({value: i.value, text: i.label})),
+          width: '20%',
+        },
+        {
+          title: 'National I.D',
+          dataIndex: 'nin',
+        },
+        {
+          title: 'Date of Birth',
+          dataIndex: 'dob',
+        },
+        {
+          title: 'Teacher no',
+          dataIndex: 'tel',
+        },
+        {
+          title: 'Salary',
+          dataIndex: 'salary',
+        },
+    ];
+      
    
-    const [data, setData] = useState<DataType[]>();
+    const [tableData, settableData] = useState<FieldType[]>([]);
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState<TableParams>({
       pagination: {
@@ -116,28 +122,7 @@ export default function ManageTeachers() {
       },
     });
   
-  
-    // useEffect(() => {
-    //   fetchData();
-    // }, [JSON.stringify(tableParams)]);
-  
-    const handleTableChange = (
-      pagination: TablePaginationConfig,
-      filters: Record<string, FilterValue>,
-      sorter: SorterResult<DataType>,
-    ) => {
-      setTableParams({
-        pagination,
-        filters,
-        ...sorter,
-      });
-  
-      // `dataSource` is useless since `pageSize` changed
-      if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-        setData([]);
-      }
-    };
-
+ 
   const submitForm = (values: any) => {
     startSubmitting(true)
     const timeout = setTimeout(() =>{
@@ -275,14 +260,15 @@ export default function ManageTeachers() {
                             </div>
                         </div>
 
-                        <Table
-                            columns={columns}
-                            rowKey={(record) => record.login.uuid}
-                            dataSource={data}
-                            pagination={tableParams.pagination}
-                            loading={loading}
-                            onChange={handleTableChange}
-                        />
+                        <div className="overflow-x-auto">
+                            <Table
+                                columns={tableColumns}
+                                rowKey={(record) => record.title}
+                                dataSource={tableData}
+                                pagination={tableParams.pagination}
+                                loading={loading}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
