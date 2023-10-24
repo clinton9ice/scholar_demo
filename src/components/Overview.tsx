@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import {Card} from '@/components'
+import { Skeleton } from 'antd'
 
 export type OverviewContext = {
     children?: React.ReactNode
@@ -10,6 +11,7 @@ export type OverviewContext = {
         [id: string]: unknown
     }
     overviewClass?: string
+    loading?:boolean
 }
 
 export const  Overview = (props: OverviewContext) =>{
@@ -29,10 +31,15 @@ export const  Overview = (props: OverviewContext) =>{
                                     return (
                                         <div key={i} className="space-y-2">
                                             <h4 className="text-gray-200 text-sm capitalize">{i}</h4>
-
-                                            <h2 className={`font-extrabold ${i === 'total course'? 'text-green-700': 'text-gray-950'} md:text-2xl text-lg`}>
-                                                {(props.overviewInfo as unknown as string[])[i as unknown as number]}
-                                            </h2>
+                                        
+                                                <h2 className={`font-extrabold ${i === 'total course'? 'text-green-700': 'text-gray-950'} md:text-2xl text-lg`}>
+                                                  
+                                                    {
+                                                         props.loading ? 
+                                                            <Skeleton.Button size='small' active className='w-5 h-5' /> : 
+                                                            (props.overviewInfo as unknown as string[])[i as unknown as number]
+                                                    }
+                                                </h2>
                                         </div>
                                     )
                                 })

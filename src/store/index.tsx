@@ -50,7 +50,10 @@ export function useWindowSize() {
   }
 
   export const isMobile = () =>{
-    return window.innerWidth <=768
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <=768
+    }
+    return  false
   }
 
 export function Provider({ children }: Props) {

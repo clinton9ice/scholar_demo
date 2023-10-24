@@ -3,7 +3,7 @@ import React, { useRef, createContext, useEffect} from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { useStoreProvider, useWindowSize, isMobile } from '@/store';
+import { useStoreProvider, useWindowSize } from '@/store';
 import {NavIcon,  Menu, DashboardLinkIcon, TeacherLinkIcon, StudentLinkIcon} from '@/components'
 
 export const NavContext = createContext({
@@ -28,8 +28,10 @@ export const  TopNav = () => {
 
 export const SideNav = (props?:{ className?: string }) =>{
     const {isSideNavOpen, closeSideNav} = useStoreProvider()
+    const {width} = useWindowSize()
+    const isMobile = width < 768
     
-    const classes = [props?.className, 'overflow-hidden w-full  md:h-[unset] md:static  custom-transition light-shadow bg-white py-10 z-20', isSideNavOpen? 'md:max-w-[300px]': 'md:max-w-[0]', isMobile() && isSideNavOpen ? 'max-w-[0]': 'max-w-[300px] fixed left-0 h-full top-0' ].join(' ')
+    const classes = [props?.className, 'overflow-hidden w-full  md:h-[unset] md:static  custom-transition light-shadow bg-white py-10 z-20', isSideNavOpen? 'md:max-w-[300px]': 'md:max-w-[0]', isMobile && isSideNavOpen ? 'max-w-[0]': 'max-w-[300px] fixed left-0 h-full top-0' ].join(' ')
     const pathname = usePathname()
     const lists = useRef([
         {
@@ -53,7 +55,7 @@ export const SideNav = (props?:{ className?: string }) =>{
  
     return (
         <React.Fragment>
-            <div className={`fixed top-0 h-full transition from-transparent to-gray-700 z-10 w-full md:hidden bg-gradient-to-br ${!isSideNavOpen? 'opacity-80': 'opacity-0 -z-10'}`} onClick={closeSideNav} />
+            <div className={`fixed top-0 h-full transition from-transparent to-gray-700 z-10 w-full md:hidden bg-gradient-to-br ${!isSideNavOpen? 'opacity-80': 'opacity-0 -z-20'}`} onClick={closeSideNav} />
         <aside className={classes}>
             <div className="px-5">
 
@@ -76,7 +78,7 @@ export const SideNav = (props?:{ className?: string }) =>{
                     lists.current.map((item) =>{
                     return (
                     <li key={item.label}>
-                            <Link href={item.link} className={linkClasses(item.link)} onClick={() => isMobile() && closeSideNav()}>
+                            <Link href={item.link} className={linkClasses(item.link)} onClick={() => isMobile && closeSideNav()}>
                                 {item.icon}
                                 <div className="text-[13px] font-medium tracking-tight">
                                     {item.label}
