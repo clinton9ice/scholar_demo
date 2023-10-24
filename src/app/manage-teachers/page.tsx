@@ -15,7 +15,6 @@ import {
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
 import type { FilterValue } from 'antd/es/table/interface'
 import { Overview, Card, SearchIcon } from '@/components'
-import type { TableColumn } from '@/components'
 import { supaBase } from '@/db'
 import { NumberToNaira } from '@/helpers/currencify'
 
