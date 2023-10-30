@@ -1,38 +1,28 @@
 "use client"
-import React from 'react'
+import {Fragment} from 'react'
 import {Card} from '@/components'
 import { Skeleton } from 'antd'
-
-export type OverviewContext = {
-    children?: React.ReactNode
-    className?: string
-    header?: string
-    overviewInfo:{
-        [id: string]: unknown
-    }
-    overviewClass?: string
-    loading?:boolean
-}
+import type { OverviewContext } from '@/types'
 
 export const  Overview = (props: OverviewContext) =>{
     const overviewClass = [props.overviewClass, 'flex items-center my-auto'].join(' ')
     return (
-        <React.Fragment>
+        <Fragment>
                 <h3 className="font-semibold text-base mb-5">
                     {props.header}
                 </h3>
 
                 <Card>
-                    <div className={overviewClass}>
+                    <div  className={overviewClass}>
                         <div className=" w-full px-8 md:gap-x-20 py-10 md:py-0 gap-8 flex-wrap flex items-center my-auto">
 
                             {
                                 Object.keys(props.overviewInfo).sort((a, b) => (b > a? 1: -1)).map((i) =>{
                                     return (
-                                        <div key={i} className="space-y-2">
+                                        <div data-testid='overview-list' key={i} className="space-y-2">
                                             <h4 className="text-gray-200 text-sm capitalize">{i}</h4>
                                         
-                                                <h2 className={`font-extrabold ${i === 'total course'? 'text-green-700': 'text-gray-950'} md:text-2xl text-lg`}>
+                                                <h2  className={`font-extrabold ${i === 'total course'? 'text-green-700': 'text-gray-950'} md:text-2xl text-lg`}>
                                                   
                                                     {
                                                          props.loading ? 
@@ -49,6 +39,6 @@ export const  Overview = (props: OverviewContext) =>{
                         {props.children}
                     </div>
                 </Card>
-        </React.Fragment>
+        </Fragment>
     );
 }

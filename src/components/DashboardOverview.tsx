@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import type { OverviewContext } from '@/components'
+import type { OverviewContext } from '@/types'
 import {Overview} from '@/components'
 
 

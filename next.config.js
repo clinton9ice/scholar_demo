@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	env: {
-		SUPABASE_KEY: process.env.SUPABASE_KEY
+		VITE_SUPABASE_KEY: process.env.VITE_SUPABASE_KEY
 	},
 	images: {
 		domains: ['placehold.co']

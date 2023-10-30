@@ -3,6 +3,6 @@ export const NumberToNaira = (val: string | number) => {
 		const amount = String(val)
 			.replace(/\D/g, '')
 			.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-		return '₦ ' + amount
+		return '₦ ' + (amount || 0)
 	}
 }

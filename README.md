@@ -14,6 +14,12 @@ pnpm dev
 bun dev
 ```
 
+To run the project test, you can use the following command:
+```bash
+npm run test
+npm run test:ui
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

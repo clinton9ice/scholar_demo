@@ -1,7 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import dayjs, { Dayjs } from 'dayjs'
-import type { OverviewContext } from '@/components'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
 	Modal,
 	DatePicker,
@@ -12,66 +10,21 @@ import {
 	message,
 	Table
 } from 'antd'
-import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
-import type { FilterValue } from 'antd/es/table/interface'
+import type { ColumnsType } from 'antd/es/table'
 import { Overview, Card, SearchIcon } from '@/components'
 import { supaBase } from '@/db'
-import { NumberToNaira } from '@/helpers/currencify'
-
-type FieldType = {
-	first_name: string
-	last_name: string
-	title: 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | ''
-	nin: string
-	dob: string
-	tel: number
-	salary?: string
-}
-
-interface TableParams {
-	pagination?: TablePaginationConfig
-	sortField?: string
-	sortOrder?: string
-	filters?: Record<string, FilterValue>
-}
-
-const requiredDate = dayjs().subtract(20, 'year')
-const disabledAgeHigher21 = (current: Dayjs) => {
-	const date = dayjs()
-	// Disable previous days and start from the minimum of 21 years
-	return (
-		(current && date.year() < current.year()) ||
-		requiredDate.year() < current.year()
-	)
-}
+import { genderTitles, dbField } from '@/db/columnSchema'
+import { getALlData } from '@/db/GetData'
+import { disableAgeLessThan21, age21 } from '@/helpers/Date'
+import { FieldType, TableParams,OverviewContext } from '@/types'
 
 export default function ManageTeachers() {
 	const [isFormModalOpen, openFormModal] = useState(false)
 	const [isSubmitting, startSubmitting] = useState(false)
 	const [form] = Form.useForm()
 	const isFemale = ['mrs', 'miss']
-	const titleList = [
-		{
-			value: 'mr',
-			label: 'Mr'
-		},
-		{
-			value: 'mrs',
-			label: 'Mrs'
-		},
-		{
-			value: 'miss',
-			label: 'Miss'
-		},
-		{
-			value: 'dr',
-			label: 'Dr'
-		},
-		{
-			value: 'prof',
-			label: 'Prof'
-		}
-	]
+	const titleList = genderTitles.map(item => ({value: item.toLowerCase(), label:item}))
+
 	const [dashboardOverview, setDashboardOverview] = useState<
 		OverviewContext['overviewInfo']
 	>({
@@ -102,7 +55,7 @@ export default function ManageTeachers() {
 		},
 		{
 			title: 'Teacher no',
-			dataIndex: 'tel'
+			dataIndex: 'teacher_no'
 		},
 		{
 			title: 'Salary',
@@ -119,43 +72,46 @@ export default function ManageTeachers() {
 		}
 	})
 
-	const getData = () => {
+	const getData =useCallback(() => {
 		setTableLoader(true)
-		supaBase
-			.from('management details')
-			.select('*')
-			.eq('is_student', false)
-			.then(e => {
-				if (!e.error?.message) {
-					const res = e.data as FieldType[]
-					if (Array.isArray(res)) {
-						setTableData(
-							res.map(item => ({
-								...item,
-								name: `${item.first_name} ${item.last_name}`,
-								dob: dayjs(item.dob).format('DD MMM, YYYY'),
-								salary: NumberToNaira(item?.salary || '')
-							}))
-						)
-						setDashboardOverview({
-							'total No of Teacher': res?.length,
-							'No of Male Teacher': res.filter(
-								item => !isFemale.includes(item.title)
-							).length,
-							'No of Female Teacher': res.filter(item =>
-								isFemale.includes(item.title)
-							).length
-						})
-					}
-				} else {
-					message.error(e.error.hint)
-				}
-				setTableLoader(false)
-			})
-	}
+		getALlData({
+			runCheck: 'is_student',
+			checkValue: false
+		}).then(item =>{
+			if (Array.isArray(item)) {
+				setTableData(item)
+				setDashboardOverview({
+					'total No of Teacher': item?.length,
+					'No of Male Teacher': item.filter(
+						m => !isFemale.includes(m.title)
+					).length,
+					'No of Female Teacher': item.filter(f =>
+						isFemale.includes(f.title)
+					).length
+				})
+			} else {
+				message.error(item.message)
+			}
+		}).catch((error) =>{
+			message.error(error.message)
+			console.error(error);
+		}).finally(() => setTableLoader(false))
+	}, [])
+
 	const submitForm = async (values: FieldType) => {
+		const isRequiredFieldsEmpty = Object.keys(values).some(item => {
+			const field = (values as unknown as {}[])[item as unknown as number]
+			if (item !== 'salary') {
+				return (typeof field === 'string' &&  field.trim() === '') || !field
+			}
+	   })
+		if (isRequiredFieldsEmpty) {
+			return message.error({
+				content:  'Please ensure to fill the required fields'
+			})
+		}
 		startSubmitting(true)
-		const { error } = await supaBase.from('management details').insert([
+		const { error } = await supaBase.from(dbField).insert([
 			{
 				dob: new Date(values.dob),
 				first_name: values.first_name,
@@ -177,7 +133,7 @@ export default function ManageTeachers() {
 		startSubmitting(false)
 		openFormModal(false)
 		message.success({
-			content: 'Student added successfully'
+			content: 'Teacher added successfully'
 		})
 	}
 
@@ -187,7 +143,7 @@ export default function ManageTeachers() {
 
 	useEffect(() => {
 		getData()
-	}, [])
+	}, [getData])
 
 	return (
 		<React.Fragment>
@@ -218,7 +174,7 @@ export default function ManageTeachers() {
 				>
 					<Form
 						autoComplete='off'
-						initialValues={{ dob: dayjs(requiredDate) }}
+						initialValues={{ dob: age21 }}
 						form={form}
 						onFinish={submitForm}
 					>
@@ -270,13 +226,13 @@ export default function ManageTeachers() {
 								rules={[
 									{
 										required: true,
-										message:
-											'Please input National identity number(NIN)!'
+											min: 10
 									}
 								]}
 							>
 								<Input
-									inputMode='numeric'
+									min={10}
+									type='number'
 									className='custom-input'
 								/>
 							</Form.Item>
@@ -293,7 +249,7 @@ export default function ManageTeachers() {
 							>
 								<DatePicker
 									showToday={false}
-									disabledDate={disabledAgeHigher21}
+									disabledDate={disableAgeLessThan21}
 									className='custom-input w-full'
 								/>
 							</Form.Item>
@@ -368,7 +324,7 @@ export default function ManageTeachers() {
 								<div className='overflow-x-auto px-5 max-w-sm  sm:max-w-full'>
 									<Table
 										columns={tableColumns}
-										rowKey={record => record.title}
+										rowKey={record => record.nin}
 										dataSource={tableData}
 										pagination={tableParams.pagination}
 										loading={loadingTable}

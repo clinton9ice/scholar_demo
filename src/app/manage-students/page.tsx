@@ -1,8 +1,5 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react'
-import { supaBase } from '@/db'
-import dayjs, { Dayjs } from 'dayjs'
-import type { OverviewContext } from '@/components'
 import {
 	Modal,
 	DatePicker,
@@ -13,62 +10,19 @@ import {
 	message,
 	Table
 } from 'antd'
-import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
-import type { FilterValue, SorterResult } from 'antd/es/table/interface'
+import { supaBase } from '@/db'
+import type { ColumnsType } from 'antd/es/table'
 import { Overview, Card, SearchIcon } from '@/components'
+import { genderTitles, dbField } from '@/db/columnSchema'
+import { FieldType, TableParams, OverviewContext } from '@/types'
+import { disabledAgeHigherThan21, currentAge21 } from '@/helpers/Date'
+import { getALlData } from '@/db/GetData'
 
-type FieldType = {
-	first_name: string
-	last_name: string
-	title: 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | ''
-	nin: string
-	dob: string
-	tel: number
-	salary?: string
-}
-
-interface TableParams {
-	pagination?: TablePaginationConfig
-	sortField?: string
-	sortOrder?: string
-	filters?: Record<string, FilterValue>
-}
-
-let requiredDate = dayjs().subtract(22, 'year')
-const disabledAgeHigher21 = (current: Dayjs) => {
-	const date = dayjs()
-	// Disable previous days and limit age to 21
-	return (
-		(current && date.year() < current.year()) ||
-		requiredDate.year() > current.year()
-	)
-}
 
 export default function ManageStudents() {
 	const [isFormModalOpen, openFormModal] = useState(false)
 	const [isSubmitting, startSubmitting] = useState(false)
-	const titleList = [
-		{
-			value: 'mr',
-			label: 'Mr'
-		},
-		{
-			value: 'mrs',
-			label: 'Mrs'
-		},
-		{
-			value: 'miss',
-			label: 'Miss'
-		},
-		{
-			value: 'dr',
-			label: 'Dr'
-		},
-		{
-			value: 'prof',
-			label: 'Prof'
-		}
-	]
+	const titleList = genderTitles.map(item => ({value: item.toLowerCase(), label:item}))
 	const isFemale = ['mrs', 'miss']
 	const [form] = Form.useForm()
 	const tableColumns: ColumnsType<FieldType> = [
@@ -115,43 +69,43 @@ export default function ManageStudents() {
 		}
 	})
 
-	const getData = () => {
+	const getData = useCallback(() => {
 		setTableLoader(true)
-		supaBase
-			.from('management details')
-			.select('*')
-			.eq('is_student', true)
-			.then(e => {
-				if (!e.error?.message) {
-					const res = e.data as FieldType[]
-					setTableData(
-						res.map(item => ({
-							...item,
-							name: `${item.first_name} ${item.last_name}`,
-							dob: dayjs(item.dob).format('DD MMM, YYYY')
-						}))
-					)
-					if (Array.isArray(res)) {
-						setDashboardOverview({
-							'total No of Students': res?.length,
-							'No of Male Students': res.filter(
-								item => !isFemale.includes(item.title)
-							).length,
-							'No of Female Students': res.filter(item =>
-								isFemale.includes(item.title)
-							).length
-						})
-					}
-				} else {
-					message.error(e.error.hint)
-				}
-				setTableLoader(false)
-			})
-	}
+		getALlData({
+			runCheck: 'is_student',
+			checkValue: true
+		}).then(item =>{
+			if (Array.isArray(item)) {
+				setTableData(item)
+				setDashboardOverview({
+					'total No of Students': item?.length,
+					'No of Male Students': item.filter(
+						m => !isFemale.includes(m.title)
+					).length,
+					'No of Female Students': item.filter(f =>
+						isFemale.includes(f.title)
+					).length
+				})
+			}
+		}).catch((error) =>{
+			message.error(error.message)
+			console.error(error);
+			
+		}).finally(() => setTableLoader(false))
+	}, [])
 
 	const submitForm = async (values: FieldType) => {
+		const isRequiredFieldsEmpty = Object.values(values).some(item => {
+			return (typeof item === 'string' && item.trim() === '') || !item
+	   })
+	   
+		if (isRequiredFieldsEmpty) {
+			return message.error({
+				content:  'Please ensure to fill the required fields'
+			})
+		}
 		startSubmitting(true)
-		const { error } = await supaBase.from('management details').insert([
+		const { error } = await supaBase.from(dbField).insert([
 			{
 				dob: new Date(values.dob),
 				first_name: values.first_name,
@@ -172,7 +126,7 @@ export default function ManageStudents() {
 		startSubmitting(false)
 		openFormModal(false)
 		message.success({
-			content: 'Teacher added successfully'
+			content: 'Student added successfully'
 		})
 	}
 
@@ -182,7 +136,7 @@ export default function ManageStudents() {
 
 	useEffect(() => {
 		getData()
-	}, [])
+	}, [getData])
 
 	return (
 		<React.Fragment>
@@ -213,7 +167,7 @@ export default function ManageStudents() {
 				>
 					<Form
 						autoComplete='off'
-						initialValues={{ dob: dayjs(requiredDate) }}
+						initialValues={{ dob: currentAge21 }}
 						form={form}
 						onFinish={submitForm}
 					>
@@ -265,13 +219,15 @@ export default function ManageStudents() {
 								rules={[
 									{
 										required: true,
+										min: 10,
 										message:
-											'Please input National identity number(NIN)!'
+											'Please input National identity number(NIN) with a minimum of 10 characters!'
 									}
 								]}
 							>
 								<Input
-									inputMode='numeric'
+								min={10}
+									type='number'
 									className='custom-input'
 								/>
 							</Form.Item>
@@ -288,7 +244,7 @@ export default function ManageStudents() {
 							>
 								<DatePicker
 									showToday={false}
-									disabledDate={disabledAgeHigher21}
+									disabledDate={disabledAgeHigherThan21}
 									className='custom-input w-full'
 								/>
 							</Form.Item>

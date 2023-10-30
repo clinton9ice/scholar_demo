@@ -1,7 +1,7 @@
 'use client'
 import {supaBase} from "@/db"
 import React, { useEffect, useState } from "react";
-import type { OverviewContext } from "@/components";
+import type { OverviewContext } from "@/types";
 
 import {DashboardOverview, StudyStats, CompletedCourses} from '@/components'
 
